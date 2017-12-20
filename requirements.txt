@@ -1,0 +1,7 @@
+elasticsearch==5.4.0
+elasticsearch-dsl==5.3.0
+py==1.4.34
+pytest==3.2.3
+python-dateutil==2.6.1
+six==1.11.0
+urllib3==1.22

@@ -1,0 +1,10 @@
+{
+    "ServerPort": 9200,
+    "PostgresConfig":
+    {
+        "ServerAddress": "localhost:5432",
+        "User": "postgres",
+        "Password": "",
+        "DBName": "testdb"
+    }
+}
