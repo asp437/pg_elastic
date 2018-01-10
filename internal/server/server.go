@@ -53,7 +53,7 @@ func (s *PGElasticServerProto) Start() {
 // Configuration of all handlers of the server
 func (s *PGElasticServerProto) configureHandler() {
 	s.handler.HandleFunc(regexp.MustCompile("^/_cluster/health"), api.HealthHandler, []string{"GET"})
-	s.handler.HandleFunc(regexp.MustCompile("^/_bulk"), api.BulkHandler, []string{"GET"})
+	s.handler.HandleFunc(regexp.MustCompile("^/_bulk"), api.BulkHandler, []string{"POST"})
 
 	s.handler.HandleFunc(regexp.MustCompile("^/[^_][\\d\\w]*/_mapping/[\\d\\w]+"), api.PutTypeMapping, []string{"PUT"})
 

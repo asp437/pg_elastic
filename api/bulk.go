@@ -77,14 +77,25 @@ func ProcessBulkQuery(rawQuery []string, server server.PGElasticServer) (interfa
 			indexDescriptor := v.(map[string]interface{})
 			indexName := indexDescriptor["_index"].(string)
 			typeName := indexDescriptor["_type"].(string)
-			id := indexDescriptor["_id"].(string)
+			id := ""
+			if _, ok := indexDescriptor["_id"].(string); ok {
+				id = indexDescriptor["_id"].(string)
+			}
 
 			switch k {
 			case "index":
-				documentObject, err := server.GetDBClient().GetDocument(indexName, typeName, id)
+				typeNames, err := server.GetDBClient().FindTypes(indexName, typeName)
+				var documentObject *db.ElasticSearchDocument
+				documentObject = nil
 				if err != nil {
 					response.Errors = true
 					return nil, err
+				} else if len(typeNames) > 0 {
+					documentObject, err = server.GetDBClient().GetDocument(indexName, typeName, id)
+					if err != nil {
+						response.Errors = true
+						return nil, err
+					}
 				}
 				if documentObject == nil {
 					documentObject, err = server.GetDBClient().CreateDocument(indexName, typeName, rawQuery[i+1], id)
