@@ -370,9 +370,9 @@ func (dbc *Client) insertDocument(indexName, typeName, document string) (*Elasti
 }
 
 // Insert a new document with specified ID
-func (dbc *Client) insertDocumentID(indexName, typeName, document string, documentID string) (*ElasticSearchDocument, error) {
+func (dbc *Client) insertDocumentID(indexName, typeName, document, documentID string) (*ElasticSearchDocument, error) {
 	documentObject := &ElasticSearchDocument{documentID, document, 1}
-	queryString := fmt.Sprintf("INSERT INTO %s_%s (id, document, version) VALUES(%d, '%s', %d);", indexName, typeName, documentID, document, 1)
+	queryString := fmt.Sprintf("INSERT INTO %s_%s (id, document, version) VALUES(%s, '%s', %d);", indexName, typeName, documentID, document, 1)
 	_, err := dbc.connection.Exec(queryString)
 	if err != nil {
 		return nil, utils.NewDBQueryError(err.Error())
