@@ -69,6 +69,7 @@ func formatDocumentSearchResponse(index, typeName string, doc db.ElasticSearchDo
 	}
 }
 
+// PutDocumentHandler handles request to put document into storage
 func PutDocumentHandler(index, typeName, endpoint string, r *http.Request, s server.PGElasticServer) (interface{}, error) {
 	var documentObject *db.ElasticSearchDocument
 	body, err := ioutil.ReadAll(r.Body)
@@ -114,6 +115,7 @@ func PutDocumentHandler(index, typeName, endpoint string, r *http.Request, s ser
 	return response, nil
 }
 
+// GetDocumentHandler handles request to get document from storage
 func GetDocumentHandler(index, typeName, endpoint string, r *http.Request, s server.PGElasticServer) (response interface{}, err error) {
 	documentID := endpoint
 	documentObject, err := s.GetDBClient().GetDocument(index, typeName, documentID)
@@ -140,6 +142,7 @@ func GetDocumentHandler(index, typeName, endpoint string, r *http.Request, s ser
 	return response, nil
 }
 
+// DeleteDocumentHandler handles request to delete document from storage
 func DeleteDocumentHandler(index, typeName, endpoint string, r *http.Request, s server.PGElasticServer) (response interface{}, err error) {
 	documentID := endpoint
 	documentObject, err := s.GetDBClient().DeleteDocument(index, typeName, documentID)
@@ -166,6 +169,7 @@ func DeleteDocumentHandler(index, typeName, endpoint string, r *http.Request, s 
 	return response, nil
 }
 
+// FindDocumentHandler handles request to find document on storage
 func FindDocumentHandler(indexPattern, typePattern, endpoint string, r *http.Request, s server.PGElasticServer) (response interface{}, err error) {
 	startTime := time.Now()
 	var parsedQuery interface{}
@@ -234,6 +238,7 @@ func FindDocumentHandler(indexPattern, typePattern, endpoint string, r *http.Req
 	return nil, utils.NewIllegalQueryError("Illegal search query")
 }
 
+// FindIndexDocumentHandler handles request to find document of any type on storage
 func FindIndexDocumentHandler(endpoint string, r *http.Request, s server.PGElasticServer) (response interface{}, err error) {
 	var indexHandlerPattern = regexp.MustCompile("^/(?P<index>\\w+)/_search")
 	indexName := indexHandlerPattern.ReplaceAllString(endpoint, "${index}")

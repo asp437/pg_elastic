@@ -6,6 +6,7 @@ import (
 	"github.com/asp437/pg_elastic/utils"
 )
 
+// ParseSearchQuery parses a query and convert it into db.Query
 func ParseSearchQuery(rawQuery map[string]interface{}, query *db.Query, mapping map[string]interface{}) {
 	for k, v := range rawQuery {
 		switch k {

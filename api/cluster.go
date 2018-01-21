@@ -23,6 +23,7 @@ type clusterHealth struct {
 	ActiveShardsPercent         float32 `json:"active_shards_percent_as_number"`
 }
 
+// HealthHandler process a health-check response
 func HealthHandler(endpoint string, r *http.Request, server server.PGElasticServer) (interface{}, error) {
 	health := clusterHealth{}
 	health.Name = "pg_elastic_cluster"

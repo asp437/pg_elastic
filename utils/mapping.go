@@ -1,11 +1,12 @@
 package utils
 
+// FieldMapping represents a processing mapping for a field
 type FieldMapping struct {
 	TypeName string `json:"type"`
 	Analyzer string `json:"analyzer"`
 }
 
-// Extract field mapping from type mapping object
+// GetFieldMapping extracts field mapping from type mapping object
 func GetFieldMapping(mapping map[string]interface{}, fieldName string) (*FieldMapping, bool) {
 	if propertiesRaw, ok := mapping["properties"]; ok {
 		properties := propertiesRaw.(map[string]interface{})

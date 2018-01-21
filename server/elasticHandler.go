@@ -10,10 +10,10 @@ import (
 	"strings"
 )
 
-// Handler function for requests with URL: /<index>/<type>/<endpoint>. Index, type and endpoint are automatically extracted from URL
+// ElasticEndpointRequestHandler is a handler function for requests with URL: /<index>/<type>/<endpoint>. Index, type and endpoint are automatically extracted from URL
 type ElasticEndpointRequestHandler func(string, string, string, *http.Request, PGElasticServer) (interface{}, error)
 
-// Handler function for any request
+// ElasticRequestHandler is a handler function for any request
 type ElasticRequestHandler func(string, *http.Request, PGElasticServer) (interface{}, error)
 
 type RegexpRoute struct {
@@ -22,20 +22,21 @@ type RegexpRoute struct {
 	methods []string
 }
 
-type RegexpEndpointRoute struct {
+type regexpEndpointRoute struct {
 	pattern *regexp.Regexp
 	handler ElasticEndpointRequestHandler
 	methods []string
 }
 
+// ElasticHandler contains information how to precess all routes of the server
 type ElasticHandler struct {
 	specialRoutes   []*RegexpRoute
 	endpointPattern *regexp.Regexp
-	endpointRoutes  []*RegexpEndpointRoute
+	endpointRoutes  []*regexpEndpointRoute
 	server          PGElasticServer
 }
 
-// Create a new instance of handler-router for PGElasticServer
+// NewElasticHandler creates a new instance of handler-router for PGElasticServer
 func NewElasticHandler(s PGElasticServer) (result *ElasticHandler) {
 	result = new(ElasticHandler)
 	result.server = s
@@ -43,17 +44,17 @@ func NewElasticHandler(s PGElasticServer) (result *ElasticHandler) {
 	return result
 }
 
-// Add a handler for request. URL is described via pattern
+// HandleFunc adds a handler for request. URL is described via pattern
 func (h *ElasticHandler) HandleFunc(pattern *regexp.Regexp, handler ElasticRequestHandler, methods []string) {
 	h.specialRoutes = append(h.specialRoutes, &RegexpRoute{pattern, handler, methods})
 }
 
-// Add a handler for request with URL: /<index>/<type>/<endpoint>. Endpoint format is described via pattern
+// HandleFuncEndpoint adds a handler for request with URL: /<index>/<type>/<endpoint>. Endpoint format is described via pattern
 func (h *ElasticHandler) HandleFuncEndpoint(pattern *regexp.Regexp, handler ElasticEndpointRequestHandler, methods []string) {
-	h.endpointRoutes = append(h.endpointRoutes, &RegexpEndpointRoute{pattern, handler, methods})
+	h.endpointRoutes = append(h.endpointRoutes, &regexpEndpointRoute{pattern, handler, methods})
 }
 
-// Handle and route request to appropriate handler
+// ServeHTTP handles and route request to appropriate handler
 func (h *ElasticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if h.endpointPattern.MatchString(r.URL.Path) {

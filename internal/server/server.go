@@ -12,13 +12,14 @@ import (
 	"strconv"
 )
 
+// PGElasticServerProto describes a server runtime instance and its configuration
 type PGElasticServerProto struct {
 	handler  *server.ElasticHandler
 	config   *utils.PGElasticConfig
 	dbclient *db.Client
 }
 
-// Create an instance of server. Configuration should be loaded from file configFileName
+// InitializerServer creates an instance of server. Configuration should be loaded from file configFileName
 func InitializeServer(configFileName string) (server.PGElasticServer, error) {
 	s := new(PGElasticServerProto)
 	s.config = utils.ReadConfig(configFileName)
@@ -36,10 +37,12 @@ func InitializeServer(configFileName string) (server.PGElasticServer, error) {
 	return s, nil
 }
 
+// GetConfiguration returnes a configuration of the server
 func (s *PGElasticServerProto) GetConfiguration() utils.PGElasticConfig {
 	return *s.config
 }
 
+// GetDBClient returnes a DB client of the server
 func (s *PGElasticServerProto) GetDBClient() *db.Client {
 	return s.dbclient
 }

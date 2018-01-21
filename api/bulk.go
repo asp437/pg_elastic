@@ -40,6 +40,7 @@ type bulkDeleteResponse struct {
 	Delete bulkGetCommandResponse `json:"delete"`
 }
 
+// BulkHandler handles ElasticSearch bulk requests
 func BulkHandler(endpoint string, r *http.Request, server server.PGElasticServer) (response interface{}, err error) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -51,6 +52,7 @@ func BulkHandler(endpoint string, r *http.Request, server server.PGElasticServer
 	return ProcessBulkQuery(bulkCommands, server)
 }
 
+// ProcessBulkQuery processes a bulk query
 func ProcessBulkQuery(rawQuery []string, server server.PGElasticServer) (interface{}, error) {
 	response := bulkResponse{}
 	response.Errors = false

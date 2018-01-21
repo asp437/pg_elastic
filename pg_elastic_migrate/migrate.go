@@ -19,6 +19,9 @@ func migrateMapping(postgresqlClient *db.Client, indexName string, typeName stri
 	}
 	fmt.Printf("Processing mapping for Index: %s, Type: %s\n", indexName, typeName)
 	_, err = postgresqlClient.CreateType(indexName, typeName, string(options))
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func migrateIndexMappings(elasticClient *elastic.Client, postgresqlClient *db.Client, indexName string) {

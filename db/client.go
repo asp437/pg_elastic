@@ -8,23 +8,28 @@ import (
 	"strings"
 )
 
+// Client is a database client connection
 type Client struct {
 	connection *pg.DB
 }
 
+// Query is alias for orm.Query type. Used to implement other packages of the project without linking it to pg/orm
 type Query = orm.Query
 
+// IndexRecord contains information about index stored in database
 type IndexRecord struct {
 	Name    string
 	Options string
 }
 
+// TypeRecord contains information about type stored in database
 type TypeRecord struct {
 	Name      string
 	IndexName string
 	Options   string
 }
 
+// ElasticSearchDocument represents ElasticSearch document stored in database
 type ElasticSearchDocument struct {
 	ID       string
 	Document interface{}
@@ -35,7 +40,7 @@ type ElasticSearchDocument struct {
  * General Client API
  */
 
-// Create an instance of Client with specified parameters
+// CreateClient creates  an instance of Client with specified parameters
 // Doesn't check connection to DB server
 func CreateClient(config utils.PostgresConnectionConfig) (result *Client) {
 	result = new(Client)
@@ -48,7 +53,7 @@ func CreateClient(config utils.PostgresConnectionConfig) (result *Client) {
 	return result
 }
 
-// Initialize system tables used by pg_elastic
+// InitializeSchema initializes system tables used by pg_elastic
 // Doesn't affect existing tables
 func (dbc *Client) InitializeSchema() error {
 	for _, model := range []interface{}{&IndexRecord{}, &TypeRecord{}} {
@@ -60,13 +65,13 @@ func (dbc *Client) InitializeSchema() error {
 	return nil
 }
 
-// Create Query instance for specified index and type
+// NewQuery creates  Query instance for specified index and type
 func (dbc *Client) NewQuery(indexName, typeName string) *Query {
 	tableName := fmt.Sprintf("%s_%s", indexName, typeName)
 	return dbc.connection.Model().Table(tableName)
 }
 
-// Processing ElasticSearch-format query
+// ProcessSearchQuery does a processing of ElasticSearch-format query
 func (dbc *Client) ProcessSearchQuery(indexName, typeName string, query *Query) ([]ElasticSearchDocument, error) {
 	var documentObject []ElasticSearchDocument
 
@@ -90,7 +95,7 @@ func (dbc *Client) ProcessSearchQuery(indexName, typeName string, query *Query) 
  * Indices API
  */
 
-// Create an index record with specified options
+// CreateIndex creates an index record with specified options
 func (dbc *Client) CreateIndex(indexName, options string) (*IndexRecord, error) {
 	var indexRecord IndexRecord
 	indexSelectQuery := dbc.connection.Model(&IndexRecord{}).Where("Name = ?", indexName)
@@ -111,7 +116,7 @@ func (dbc *Client) CreateIndex(indexName, options string) (*IndexRecord, error) 
 	return &indexRecord, nil
 }
 
-// Get an instance of existing index
+// GetIndex gets an instance of existing index
 func (dbc *Client) GetIndex(indexName string) (*IndexRecord, error) {
 	var indexRecord IndexRecord
 	indexSelectQuery := dbc.connection.Model(&IndexRecord{}).Where("Name = ?", indexName)
@@ -130,7 +135,7 @@ func (dbc *Client) GetIndex(indexName string) (*IndexRecord, error) {
 	return &indexRecord, nil
 }
 
-// Search for indicies using name pattern in ElasticSearch wildcard format
+// FindIndices searches for indicies using name pattern in ElasticSearch wildcard format
 func (dbc *Client) FindIndices(indexPattern string) ([]string, error) {
 	var records []IndexRecord
 	var results []string
@@ -151,7 +156,7 @@ func (dbc *Client) FindIndices(indexPattern string) ([]string, error) {
  * Types API
  */
 
-// Create a type record with specified options
+// CreateType creates a type record with specified options
 func (dbc *Client) CreateType(indexName, typeName, options string) (*TypeRecord, error) {
 	var typeRecord TypeRecord
 	typeSelectQuery := dbc.connection.Model(&TypeRecord{}).Where("Name = ?", typeName).Where("Index_Name = ?", indexName)
@@ -175,7 +180,7 @@ func (dbc *Client) CreateType(indexName, typeName, options string) (*TypeRecord,
 	return &typeRecord, nil
 }
 
-// Get an instance of existing type
+// GetType gets an instance of existing type
 func (dbc *Client) GetType(indexName, typeName string) (*TypeRecord, error) {
 	var typeRecord TypeRecord
 	typeSelectQuery := dbc.connection.Model(&TypeRecord{}).Where("Name = ?", typeName).Where("Index_Name = ?", indexName)
@@ -194,7 +199,7 @@ func (dbc *Client) GetType(indexName, typeName string) (*TypeRecord, error) {
 
 }
 
-// Update options for exiting type
+// UpdateTypeOptions updates options for exiting type
 func (dbc *Client) UpdateTypeOptions(indexName, typeName, options string) (*TypeRecord, error) {
 	_, err := dbc.connection.Model(&TypeRecord{}).Where("Name = ?", typeName).Where("Index_Name = ?", indexName).Set("options = ?", options).Update()
 	if err != nil {
@@ -203,7 +208,7 @@ func (dbc *Client) UpdateTypeOptions(indexName, typeName, options string) (*Type
 	return dbc.GetType(indexName, typeName)
 }
 
-// Search for indicies using name pattern in ElasticSearch wildcard format
+// FindTypes searches for indicies using name pattern in ElasticSearch wildcard format
 func (dbc *Client) FindTypes(index, typePattern string) ([]string, error) {
 	var records []TypeRecord
 	var results []string
@@ -224,7 +229,7 @@ func (dbc *Client) FindTypes(index, typePattern string) ([]string, error) {
  * Documents API
  */
 
-// Create a new document in database
+// CreateDocument creates a new document in database
 func (dbc *Client) CreateDocument(indexName, typeName, document string, documentID string) (result *ElasticSearchDocument, err error) {
 	index, err := dbc.GetIndex(indexName)
 	if err != nil {
@@ -268,7 +273,7 @@ func (dbc *Client) CreateDocument(indexName, typeName, document string, document
 	return result, nil
 }
 
-// Get document specified by index, type, and ID
+// GetDocument gets document specified by index, type, and ID
 func (dbc *Client) GetDocument(indexName, typeName string, documentID string) (*ElasticSearchDocument, error) {
 	var documentObject ElasticSearchDocument
 
@@ -291,7 +296,7 @@ func (dbc *Client) GetDocument(indexName, typeName string, documentID string) (*
 	return &documentObject, nil
 }
 
-// Check for document existance in database
+// IsDocumentExists checkes for document existence in database
 func (dbc *Client) IsDocumentExists(indexName, typeName string, documentID string) (bool, error) {
 	if len(documentID) == 0 {
 		return false, nil
@@ -304,7 +309,7 @@ func (dbc *Client) IsDocumentExists(indexName, typeName string, documentID strin
 	return count == 1, nil
 }
 
-// Update existing document in database
+// UpdateDocument updates existing document in database
 func (dbc *Client) UpdateDocument(indexName, typeName, document string, documentID string) (result *ElasticSearchDocument, err error) {
 	documentExist, err := dbc.IsDocumentExists(indexName, typeName, documentID)
 	if err != nil {
@@ -323,7 +328,7 @@ func (dbc *Client) UpdateDocument(indexName, typeName, document string, document
 	return result, nil
 }
 
-// Delete existing document in database
+// DeleteDocument deletes existing document in database
 func (dbc *Client) DeleteDocument(indexName, typeName string, documentID string) (*ElasticSearchDocument, error) {
 	documentObject, err := dbc.GetDocument(indexName, typeName, documentID)
 	if err != nil {

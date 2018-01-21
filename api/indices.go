@@ -21,6 +21,7 @@ type typePutResponse struct {
 var putTypeMappingPattern = regexp.MustCompile("/(?P<index>\\w+)/_mapping/(?P<type>\\w+)")
 var indexHandlerPattern = regexp.MustCompile("/(?P<index>\\w+)")
 
+// PutIndexHandler process a response to put a new index into database
 func PutIndexHandler(endpoint string, r *http.Request, server server.PGElasticServer) (interface{}, error) {
 	indexName := indexHandlerPattern.ReplaceAllString(endpoint, "${index}")
 	optionsBytes, err := ioutil.ReadAll(r.Body)
@@ -37,6 +38,7 @@ func PutIndexHandler(endpoint string, r *http.Request, server server.PGElasticSe
 	return indexPutResponse{true, true}, nil
 }
 
+// HeadIndexHandler process a response to check is an index exists in database
 func HeadIndexHandler(endpoint string, r *http.Request, server server.PGElasticServer) (interface{}, error) {
 	indexName := indexHandlerPattern.ReplaceAllString(endpoint, "${index}")
 	indexRecord, err := server.GetDBClient().GetIndex(indexName)
@@ -47,6 +49,7 @@ func HeadIndexHandler(endpoint string, r *http.Request, server server.PGElasticS
 	return indexRecord != nil, nil
 }
 
+// PutTypeMapping process a response to put a type mapping into database
 func PutTypeMapping(endpoint string, r *http.Request, server server.PGElasticServer) (interface{}, error) {
 	indexName := putTypeMappingPattern.ReplaceAllString(endpoint, "${index}")
 	typeName := putTypeMappingPattern.ReplaceAllString(endpoint, "${type}")
