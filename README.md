@@ -1,5 +1,7 @@
 # pg\_elastic - ElasticSearch API frontend for PostgreSQL
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/asp437/pg_elastic)](https://goreportcard.com/report/github.com/asp437/pg_elastic)
+
 `pg_elastic` application provides *ElasticSearch* API for storing and processing data in *PostgreSQL* RDBMS.
 
 > **_IMPORTANT!_** `pg_elastic` requires Go compiler version 1.9 or above.
