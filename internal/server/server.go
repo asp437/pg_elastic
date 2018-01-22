@@ -19,7 +19,7 @@ type PGElasticServerProto struct {
 	dbclient *db.Client
 }
 
-// InitializerServer creates an instance of server. Configuration should be loaded from file configFileName
+// InitializeServer creates an instance of server. Configuration should be loaded from file configFileName
 func InitializeServer(configFileName string) (server.PGElasticServer, error) {
 	s := new(PGElasticServerProto)
 	s.config = utils.ReadConfig(configFileName)

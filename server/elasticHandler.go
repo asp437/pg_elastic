@@ -16,7 +16,7 @@ type ElasticEndpointRequestHandler func(string, string, string, *http.Request, P
 // ElasticRequestHandler is a handler function for any request
 type ElasticRequestHandler func(string, *http.Request, PGElasticServer) (interface{}, error)
 
-type RegexpRoute struct {
+type regexpRoute struct {
 	pattern *regexp.Regexp
 	handler ElasticRequestHandler
 	methods []string
@@ -30,7 +30,7 @@ type regexpEndpointRoute struct {
 
 // ElasticHandler contains information how to precess all routes of the server
 type ElasticHandler struct {
-	specialRoutes   []*RegexpRoute
+	specialRoutes   []*regexpRoute
 	endpointPattern *regexp.Regexp
 	endpointRoutes  []*regexpEndpointRoute
 	server          PGElasticServer
@@ -46,7 +46,7 @@ func NewElasticHandler(s PGElasticServer) (result *ElasticHandler) {
 
 // HandleFunc adds a handler for request. URL is described via pattern
 func (h *ElasticHandler) HandleFunc(pattern *regexp.Regexp, handler ElasticRequestHandler, methods []string) {
-	h.specialRoutes = append(h.specialRoutes, &RegexpRoute{pattern, handler, methods})
+	h.specialRoutes = append(h.specialRoutes, &regexpRoute{pattern, handler, methods})
 }
 
 // HandleFuncEndpoint adds a handler for request with URL: /<index>/<type>/<endpoint>. Endpoint format is described via pattern

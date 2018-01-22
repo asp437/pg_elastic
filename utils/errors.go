@@ -66,7 +66,7 @@ func (err *ElasticErrorGeneral) Type() string {
 	return err.TypeVal
 }
 
-// Type returns the error reason
+// Reason returns the error reason
 func (err *ElasticErrorGeneral) Reason() string {
 	return err.ReasonVal
 }

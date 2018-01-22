@@ -262,15 +262,12 @@ func (dbc *Client) CreateDocument(indexName, typeName, document string, document
 			return nil, err
 		}
 		if documentExist {
-			return nil, utils.NewDBQueryError(fmt.Sprintf("Document with ID %s already exists", documentID))
+			result, err = nil, utils.NewDBQueryError(fmt.Sprintf("Document with ID %s already exists", documentID))
 		} else {
 			result, err = dbc.insertDocumentID(indexName, typeName, document, documentID)
-			if err != nil {
-				return nil, err
-			}
 		}
 	}
-	return result, nil
+	return result, err
 }
 
 // GetDocument gets document specified by index, type, and ID
